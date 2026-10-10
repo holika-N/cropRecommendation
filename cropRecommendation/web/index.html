@@ -37,20 +37,81 @@
 
   <section id = "recommendation">
     <h1> Recommendation </h1>
-    <form id="nutrientForm">
-         <label for="Nitrogen">Nitrgoen:</label>
-        <input
-            type="number"
-            id="nitrogen"
-            name="nitrogen"
-            min="0"
-            placeholder="Enter a Number"
-            required
-            >
-        <button type="submit">Submit</button>
+    <form method="POST" action="/" id="nutrientForm">
+        <div class="form-field">
+        <label for="soil_ph">Soil pH</label>
+        <input id="soil_ph" name="soil_ph"
+              type="number" step="any"
+              min="0" max="14" required
+              placeholder="e.g. 6.2">
+      </div>
+
+      <div class="form-field">
+        <label for="K">Potassium (K)</label>
+        <input id="K" name="K"
+              type="number" step="any" min="0"
+              required placeholder="Enter K value">
+      </div>
+
+      <div class="form-field">
+        <label for="P">Phosphorus (P)</label>
+        <input id="P" name="P"
+              type="number" step="any" min="0"
+              required placeholder="Enter P value">
+      </div>
+
+      <div class="form-field">
+        <label for="Mg">Magnesium (Mg)</label>
+        <input id="Mg" name="Mg"
+              type="number" step="any" min="0"
+              required placeholder="Enter Mg value">
+      </div>
+
+      <div class="form-field">
+        <label for="C">Carbon (C)</label>
+        <input id="C" name="C"
+              type="number" step="any" min="0"
+              required placeholder="Enter C value">
+      </div>
+
+      <button type="submit">Find My Top Crops</button>
         <p id="error" style="color: red;"></p>
-    </form>
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+  </form>
     
+  {% if recommendations %}
+    <div class="results">
+      <h2>Your Top Crop Matches</h2>
+      <p>Here are the crops that best match your soil test.</p>
+
+      {% for item in recommendations %}
+        <div class="crop">
+          <h3>
+            <span class="crop-rank">{{ loop.index }}</span>
+            {{ item.crop }}
+          </h3>
+
+          <p>
+            <strong>Similarity:</strong>
+            {{ item.similarity }}%
+          </p>
+
+          <p>
+            <strong>Suitable soil pH:</strong>
+            {{ item.ph_range }}
+          </p>
+
+          {% if item.ph_match %}
+            <p class="ph-match">Your soil pH is within this crop's suitable range.</p>
+          {% else %}
+            <p class="ph-warning">Your soil pH is outside this crop's suitable range.</p>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
   </section>
 
   <section id = "about">
