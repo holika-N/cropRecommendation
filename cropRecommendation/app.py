@@ -99,7 +99,12 @@ def recommend_crops(values, soil_ph, top_n=3):
                 100 / (1 + float(row["distance"])), 1
             ),
             "ph_range": f'{row["pHL"]} - {row["phU"]}',
-            "ph_match": bool(row["ph_match"])
+            "ph_match": bool(row["ph_match"]),
+            # the crop's levels, shown in the dropdown
+            **{
+                name: round(float(row[name]), 2)
+                for name in features
+            }
         }
         for _, row in results.head(top_n).iterrows()
     ]

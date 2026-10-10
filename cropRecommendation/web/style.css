@@ -1,16 +1,23 @@
 html {
   scroll-behavior: smooth;
 }
+:root {
+  --dark-spruce: rgb(52, 72, 42);
+  --lime-cream: rgb(191, 224, 99);
+  --reddish-brown: rgb(132, 68, 47);
+  --steel-blue: rgb(89, 151, 187);
+  --dust-grey: rgb(228, 223, 216);
+}
 
 /* NAVBAR */
 .navbar {
   width: 100%;
   box-sizing: border-box;
   /* new stuff */
-  background: rgba(250, 248, 243, 0.92);
+  background: rgba(47, 89, 43, 0.6);
   /* background: #ffffff;
   border-bottom: 1px solid #e5e5e5; */
-  border-bottom: 1px solid rgba(77,111,168, 0.12);
+  border-bottom: 1px solid rgba(248, 244, 244, 0.12);
   padding: 18px 7%;
   /* position: relative; */
   position: sticky;
@@ -38,24 +45,464 @@ html {
 
 .navbar a {
   text-decoration: none;
-  color: #000;
+  color: #032a10;
   font-weight: 500;
   position: relative;
   transition: color 0.25s ease;
+  font-family: 'Courier', monospace;
+
 }
 
 .navbar a:hover {
-  color: red;
+  color: rgb(217, 232, 211);
 }
 
 body {
     margin: 0;
     padding-top: 60px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--dust-grey);
 }
+
+
 
 section {
     text-align: center;
     min-height: 100hv;
     padding: 100px 40px 40px;
     scroll-margin-top: 30px;
+}
+
+#home {
+  font-family: 'Roboto', monospace;
+}
+
+#howto {
+  font-family: 'Roboto', monospace;
+}
+
+/* ============ RECOMMENDATION ============
+   In style.css, delete everything from your "#recommendation {" rule
+   down to just before "#about", and paste this in its place. */
+
+#recommendation {
+  --rec-ink: var(--dark-spruce);
+  --rec-ink-soft: rgba(52, 72, 42, 0.72);
+  --rec-line: rgba(52, 72, 42, 0.25);
+  --rec-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
+  background: var(--dark-spruce);
+  color: var(--dust-grey);
+  padding: 100px 5% 80px;
+}
+
+/* HEADER */
+.rec-header {
+  max-width: 640px;
+  margin: 0 auto 28px;
+  text-align: left;
+}
+
+.rec-header h1 {
+  margin: 0 0 8px;
+  font-size: 2.2rem;
+}
+
+.rec-header p {
+  margin: 0;
+  opacity: 0.75;
+  line-height: 1.5;
+}
+
+/* INPUT CARD */
+.rec-form {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 36px;
+  box-sizing: border-box;
+  text-align: left;
+  color: var(--rec-ink);
+  background: var(--dust-grey);
+  border-radius: 28px;
+  box-shadow: var(--rec-shadow);
+}
+
+.rec-form h2 {
+  margin: 0 0 6px;
+  font-size: 1.3rem;
+}
+
+.rec-hint {
+  margin: 0 0 18px;
+  color: var(--rec-ink-soft);
+  font-size: 0.9rem;
+}
+
+/* one row per nutrient: chip, name, input with unit */
+.rec-fields {
+  margin-bottom: 28px;
+}
+
+.rec-field {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 2px dashed var(--rec-line);
+}
+
+.rec-field:last-child {
+  border-bottom: none;
+}
+
+.rec-chip {
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--dust-grey);
+  background: var(--dark-spruce);
+  border-radius: 50%;
+}
+
+.rec-chip--blue  { background: var(--steel-blue); }
+.rec-chip--lime  { background: var(--lime-cream); color: var(--dark-spruce); }
+.rec-chip--brown { background: var(--reddish-brown); }
+.rec-chip--white { background: #fff; color: var(--dark-spruce); border: 2px solid var(--rec-line); box-sizing: border-box; }
+
+.rec-field label {
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.rec-input {
+  position: relative;
+  flex: 0 0 190px;
+}
+
+.rec-unit {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--rec-ink-soft);
+  pointer-events: none;
+}
+
+.rec-field input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px 58px 13px 20px;
+  font-family: inherit;
+  font-size: 1.05rem;
+  color: var(--rec-ink);
+  background: #fff;
+  border: 2px solid var(--rec-line);
+  border-radius: 999px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+/* hide the number spinners */
+.rec-field input::-webkit-outer-spin-button,
+.rec-field input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.rec-field input::placeholder {
+  color: var(--rec-ink-soft);
+  opacity: 0.7;
+}
+
+.rec-field input:hover {
+  border-color: var(--dark-spruce);
+}
+
+.rec-field input:focus {
+  outline: none;
+  border-color: var(--steel-blue);
+  box-shadow: 0 0 0 4px rgba(89, 151, 187, 0.35);
+}
+
+/* BUTTON */
+.rec-submit {
+  padding: 15px 34px;
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--dark-spruce);
+  background: var(--lime-cream);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 6px 0 var(--dark-spruce);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.rec-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 var(--dark-spruce);
+}
+
+.rec-submit:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 var(--dark-spruce);
+}
+
+.rec-submit:focus-visible {
+  outline: 3px solid var(--steel-blue);
+  outline-offset: 3px;
+}
+
+.rec-error {
+  margin: 20px 0 0;
+  padding: 12px 20px;
+  color: var(--dust-grey);
+  background: var(--reddish-brown);
+  border-radius: 18px;
+}
+
+.rec-error:empty {
+  display: none;
+}
+
+/* RESULTS */
+.rec-results {
+  max-width: 640px;
+  margin: 56px auto 0;
+  text-align: left;
+}
+
+.rec-results h2 {
+  margin: 0 0 8px;
+  font-size: 1.6rem;
+}
+
+.rec-results > p {
+  margin: 0 0 24px;
+  opacity: 0.75;
+}
+
+/* cards stack vertically */
+.rec-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* each card is a <details>: click the summary to open the levels */
+.crop-card {
+  color: var(--rec-ink);
+  background: var(--dust-grey);
+  border-radius: 24px;
+  box-shadow: var(--rec-shadow);
+}
+
+.crop-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 24px;
+  cursor: pointer;
+  list-style: none;
+  border-radius: 24px;
+}
+
+.crop-summary::-webkit-details-marker {
+  display: none;
+}
+
+.crop-summary:focus-visible {
+  outline: 3px solid var(--steel-blue);
+  outline-offset: 3px;
+}
+
+.crop-top .crop-score {
+  margin-left: auto;
+  font-size: 1.6rem;
+}
+
+.crop-chevron {
+  flex: 0 0 auto;
+  width: 12px;
+  height: 12px;
+  margin: 0 4px 6px 6px;
+  border-right: 3px solid var(--rec-ink);
+  border-bottom: 3px solid var(--rec-ink);
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+.crop-card[open] .crop-chevron {
+  margin-bottom: -6px;
+  transform: rotate(225deg);
+}
+
+.crop-hint {
+  font-size: 0.8rem;
+  color: var(--rec-ink-soft);
+}
+
+.crop-card[open] .crop-hint {
+  display: none;
+}
+
+/* levels table shown when a card is open */
+.crop-levels {
+  padding: 0 24px 24px;
+}
+
+.crop-levels table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.crop-levels th,
+.crop-levels td {
+  padding: 12px 16px;
+  text-align: right;
+  border-bottom: 2px dashed var(--rec-line);
+}
+
+.crop-levels th:first-child,
+.crop-levels td:first-child {
+  text-align: left;
+}
+
+.crop-levels thead th {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--rec-ink-soft);
+}
+
+.crop-levels tbody tr:last-child th,
+.crop-levels tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* top crop stands out */
+.crop-card--top {
+  background: var(--lime-cream);
+}
+
+.crop-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.crop-rank {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--dust-grey);
+  background: var(--dark-spruce);
+  border-radius: 50%;
+}
+
+.crop-name {
+  margin: 0;
+  font-family: inherit;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.crop-score {
+  font-family: inherit;
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--rec-ink);
+}
+
+.crop-score small {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--rec-ink-soft);
+}
+
+.crop-bar {
+  width: 100%;
+  height: 12px;
+  margin: 0;
+  background: rgba(52, 72, 42, 0.18);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.crop-bar span {
+  display: block;
+  max-width: 100%;
+  height: 100%;
+  background: var(--steel-blue);
+  border-radius: 999px;
+}
+
+.crop-card--top .crop-bar span {
+  background: var(--dark-spruce);
+}
+
+.crop-meta {
+  margin: 0;
+  color: var(--rec-ink-soft);
+}
+
+.crop-meta strong {
+  color: var(--rec-ink);
+}
+
+/* pH BADGES */
+.badge {
+  display: inline-block;
+  margin-top: auto;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-radius: 999px;
+}
+
+.badge-ok {
+  color: var(--dust-grey);
+  background: var(--dark-spruce);
+}
+
+.badge-warn {
+  color: var(--dust-grey);
+  background: var(--reddish-brown);
+}
+
+@media (max-width: 600px) {
+  .rec-form {
+    padding: 24px;
+  }
+  .rec-input {
+    flex-basis: 130px;
+  }
+  .rec-chip {
+    width: 38px;
+    height: 38px;
+    font-size: 0.85rem;
+  }
+}
+#about {
+  font-family: 'Roboto', monospace;
 }

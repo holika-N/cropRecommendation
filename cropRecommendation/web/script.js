@@ -9,3 +9,16 @@ document.getElementById("nutrientForm").addEventListener("submit", function(even
             "Please enter a non-negative integer.";
     }
 });
+
+// Add to script.js
+// Updates the summary tiles on the right as each dropdown changes.
+
+["soil_ph", "K", "P", "Mg", "C"].forEach((id) => {
+  const select = document.getElementById(id);
+  const tile = document.getElementById("tile-" + id);
+  if (!select || !tile) return;
+
+  select.addEventListener("change", () => {
+    tile.textContent = select.value || "–";
+  });
+});

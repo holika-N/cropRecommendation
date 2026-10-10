@@ -34,31 +34,176 @@
     <p> If a nutrient on our list is not on your, please enter 0 in the input box. </p>
 
 </section>
+<!-- In index.html, replace your whole <section id="recommendation"> ... </section> with this. -->
+  <section id="recommendation">
+    <header class="rec-header">
+      <h1>Recommendation</h1>
+      <p>Enter your soil test results to see which crops fit your field best.</p>
+    </header>
 
-  <section id = "recommendation">
-    <h1> Recommendation </h1>
-    <form id="nutrientForm">
-         <label for="Nitrogen">Nitrgoen:</label>
-        <input
-            type="number"
-            id="nitrogen"
-            name="nitrogen"
-            min="0"
-            placeholder="Enter a Number"
-            required
-            >
-        <button type="submit">Submit</button>
-        <p id="error" style="color: red;"></p>
+    <!-- INPUT CARD -->
+    <form method="POST" action="/#recommendation" id="nutrientForm" class="rec-form">
+      <h2>Your soil test</h2>
+      <p class="rec-hint">Not on your report? Enter 0.</p>
+
+      <div class="rec-fields">
+        <div class="rec-field">
+          <span class="rec-chip rec-chip--blue" aria-hidden="true">pH</span>
+          <label for="soil_ph">Soil pH</label>
+          <div class="rec-input">
+            <input id="soil_ph" name="soil_ph"
+                   type="number" step="any"
+                   min="0" max="14" required
+                   placeholder="6.2"
+                   value="{{ request.form.get('soil_ph', '') }}">
+          </div>
+        </div>
+
+        <div class="rec-field">
+          <span class="rec-chip rec-chip--lime" aria-hidden="true">K</span>
+          <label for="K">Potassium</label>
+          <div class="rec-input">
+            <input id="K" name="K"
+                   type="number" step="any" min="0"
+                   required placeholder="0"
+                   value="{{ request.form.get('K', '') }}">
+            <span class="rec-unit">ppm</span>
+          </div>
+        </div>
+
+        <div class="rec-field">
+          <span class="rec-chip rec-chip--brown" aria-hidden="true">P</span>
+          <label for="P">Phosphorus</label>
+          <div class="rec-input">
+            <input id="P" name="P"
+                   type="number" step="any" min="0"
+                   required placeholder="0"
+                   value="{{ request.form.get('P', '') }}">
+            <span class="rec-unit">ppm</span>
+          </div>
+        </div>
+
+        <div class="rec-field">
+          <span class="rec-chip" aria-hidden="true">Mg</span>
+          <label for="Mg">Magnesium</label>
+          <div class="rec-input">
+            <input id="Mg" name="Mg"
+                   type="number" step="any" min="0"
+                   required placeholder="0"
+                   value="{{ request.form.get('Mg', '') }}">
+            <span class="rec-unit">ppm</span>
+          </div>
+        </div>
+
+        <div class="rec-field">
+          <span class="rec-chip rec-chip--white" aria-hidden="true">C</span>
+          <label for="C">Carbon</label>
+          <div class="rec-input">
+            <input id="C" name="C"
+                   type="number" step="any" min="0"
+                   required placeholder="0"
+                   value="{{ request.form.get('C', '') }}">
+            <span class="rec-unit">%</span>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="rec-submit">Find My Top Crops</button>
+
+      <p id="error" class="rec-error"></p>
+      {% if error %}
+        <p class="rec-error">{{ error }}</p>
+      {% endif %}
     </form>
-    
-  </section>
 
-  <section id = "about">
-    <h1> About US </h1>
+    <!-- RESULT CARDS -->
+    {% if recommendations %}
+      <div class="rec-results">
+        <h2>Your Top Crop Matches</h2>
+        <p>Here are the crops that best match your soil test.</p>
+
+        <div class="rec-cards">
+          {% for item in recommendations %}
+            <details class="crop-card{% if loop.first %} crop-card--top{% endif %}">
+              <summary class="crop-summary">
+                <div class="crop-top">
+                  <span class="crop-rank">{{ loop.index }}</span>
+                  <h3 class="crop-name">{{ item.crop }}</h3>
+                  <span class="crop-score">{{ item.similarity }}%</span>
+                  <span class="crop-chevron" aria-hidden="true"></span>
+                </div>
+
+                <div class="crop-bar">
+                  <span style="width: {{ item.similarity }}%"></span>
+                </div>
+
+                <p class="crop-meta">
+                  <strong>Suitable soil pH:</strong> {{ item.ph_range }}
+                </p>
+
+                {% if item.ph_match %}
+                  <span class="badge badge-ok">pH in range</span>
+                {% else %}
+                  <span class="badge badge-warn">pH out of range</span>
+                {% endif %}
+
+                <span class="crop-hint">Click to see nutrient levels</span>
+              </summary>
+
+              <!-- Shown when the card is clicked.
+                   "This crop" needs item.K, item.P, item.Mg and item.C from app.py;
+                   until those exist the column shows a dash. -->
+              <div class="crop-levels">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Level</th>
+                      <th>Your soil</th>
+                      <th>This crop</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th>Soil pH</th>
+                      <td>{{ request.form.get('soil_ph', '—') }}</td>
+                      <td>{{ item.ph_range }}</td>
+                    </tr>
+                    <tr>
+                      <th>Potassium (ppm)</th>
+                      <td>{{ request.form.get('K', '—') }}</td>
+                      <td>{{ item.K if item.K is defined else '—' }}</td>
+                    </tr>
+                    <tr>
+                      <th>Phosphorus (ppm)</th>
+                      <td>{{ request.form.get('P', '—') }}</td>
+                      <td>{{ item.P if item.P is defined else '—' }}</td>
+                    </tr>
+                    <tr>
+                      <th>Magnesium (ppm)</th>
+                      <td>{{ request.form.get('Mg', '—') }}</td>
+                      <td>{{ item.Mg if item.Mg is defined else '—' }}</td>
+                    </tr>
+                    <tr>
+                      <th>Carbon (%)</th>
+                      <td>{{ request.form.get('C', '—') }}</td>
+                      <td>{{ item.C if item.C is defined else '—' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </details>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
   </section>
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>
 
+
 </html>
+
+
+
