@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Crop Recommendation | Edith Zhan, Joy Ning, Holika Nanna</title>
+
+  <link rel="stylesheet" 
+        href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <!-- NAVBAR -->
+     <nav class="navbar">
+    <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#howto">Instructions</a></li>
+        <li><a href="#recommendation">Reccomendation</a></li>
+        <li><a href="#about">About Us</a></li>
+
+    </ul>
+  </nav>
+
+  <section id = "home">
+    <h1> Home </h1>
+    <p> Welcome to our crop rotation recommender! </p>
+    <p> This site was created with the hopes of deciding what crop to plant based on results of a soil test a little bit easier.</p>
+  </section>
+
+  <section id = "howto">
+    <h1> Instructions </h1>
+    <p> To use our recommendation system, simply input the percentages of each nutrient in the result of your test. </p>
+    <p> * Add visual indicators of how to *</p>
+    <p> If a nutrient on our list is not on your, please enter 0 in the input box. </p>
+
+</section>
+
+  <section id = "recommendation">
+    <h1> Recommendation </h1>
+    <form id="nutrientForm">
+         <label for="Nitrogen">Nitrgoen:</label>
+        <input
+            type="number"
+            id="nitrogen"
+            name="nitrogen"
+            min="0"
+            placeholder="Enter a Number"
+            required
+            >
+        <button type="submit">Submit</button>
+        <p id="error" style="color: red;"></p>
+    </form>
+    
+  </section>
+
+  <section id = "about">
+    <h1> About US </h1>
+  </section>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+
+</html>
