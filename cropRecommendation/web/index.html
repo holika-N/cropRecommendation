@@ -7,6 +7,42 @@
 
   <link rel="stylesheet" 
         href="{{ url_for('static', filename='style.css') }}">
+
+  <style>
+    /* CROP PICKER: choose a crop and compare your soil with its ideal soil */
+    .rec-field select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 13px 20px;
+      font-family: inherit;
+      font-size: 1.05rem;
+      color: var(--rec-ink);
+      background: #fff;
+      border: 2px solid var(--rec-line);
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .rec-field select:focus {
+      outline: none;
+      border-color: var(--steel-blue);
+      box-shadow: 0 0 0 4px rgba(89, 151, 187, 0.35);
+    }
+    .crop-check {
+      max-width: 640px;
+      margin: 32px auto 0;
+      text-align: left;
+    }
+    .crop-check[hidden], .crop-check .badge[hidden] { display: none; }
+    .crop-check .crop-summary { cursor: default; }
+    .crop-verdict { margin: 0; line-height: 1.5; }
+    .badge-mid {
+      color: var(--dark-spruce);
+      background: var(--lime-cream);
+    }
+    .status-match { color: var(--dark-spruce); font-weight: 700; }
+    .status-off { color: var(--reddish-brown); font-weight: 700; }
+    .status-missing { color: var(--rec-ink-soft); }
+  </style>
 </head>
 
 <body>
@@ -106,6 +142,15 @@
             <span class="rec-unit">%</span>
           </div>
         </div>
+        <div class="rec-field">
+          <span class="rec-chip rec-chip--lime" aria-hidden="true">?</span>
+          <label for="crop_choice">Crop you want to plant</label>
+          <div class="rec-input">
+            <select id="crop_choice" name="crop_choice">
+              <option value="">Optional</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       <button type="submit" class="rec-submit">Find My Top Crops</button>
@@ -115,6 +160,33 @@
         <p class="rec-error">{{ error }}</p>
       {% endif %}
     </form>
+
+    <!-- CROP CHECK: is the chosen crop a good fit for this soil? -->
+    <div id="cropCheck" class="crop-check" hidden>
+      <div class="crop-card">
+        <div class="crop-summary">
+          <div class="crop-top">
+            <h3 class="crop-name" id="cropCheckTitle"></h3>
+          </div>
+          <span id="cropBadge" class="badge"></span>
+          <p id="cropVerdict" class="crop-verdict"></p>
+        </div>
+        <div class="crop-levels">
+          <table>
+            <thead>
+              <tr>
+                <th>Level</th>
+                <th>Your soil</th>
+                <th>This crop</th>
+                <th>Difference</th>
+              </tr>
+            </thead>
+            <tbody id="cropCompareBody"></tbody>
+          </table>
+          <p class="crop-hint">Nutrients within 20% of the crop's ideal value count as a match.</p>
+        </div>
+      </div>
+    </div>
 
     <!-- RESULT CARDS -->
     {% if recommendations %}
@@ -197,6 +269,151 @@
       </div>
     {% endif %}
   </section>
+
+  <script>
+    // Ideal soil for each crop, copied from crop_recommendation.csv.
+    // Keep this list in sync if the CSV changes.
+    const CROP_IDEALS = {
+      "pumpkin":      { phLow: 6.0, phHigh: 6.8, K: 137.5, P: 33, Mg: 180, C: 10 },
+      "corn":         { phLow: 6.0, phHigh: 6.5, K: 2280,  P: 28, Mg: 274, C: 3.45 },
+      "winter wheat": { phLow: 5.5, phHigh: 7.5, K: 45,    P: 75, Mg: 55,  C: 4 },
+      "potato":       { phLow: 5.0, phHigh: 6.0, K: 75,    P: 75, Mg: 51,  C: 3.5 },
+      "soybean":      { phLow: 6.0, phHigh: 6.5, K: 50,    P: 50, Mg: 50,  C: 4 }
+    };
+
+    const NUTRIENTS = [
+      { id: "K",  name: "Potassium (ppm)" },
+      { id: "P",  name: "Phosphorus (ppm)" },
+      { id: "Mg", name: "Magnesium (ppm)" },
+      { id: "C",  name: "Carbon (%)" }
+    ];
+
+    // A nutrient within this fraction of the ideal value counts as a match.
+    const TOLERANCE = 0.2;
+
+    const cropSelect = document.getElementById("crop_choice");
+
+    Object.keys(CROP_IDEALS).forEach(function (crop) {
+      const option = document.createElement("option");
+      option.value = crop;
+      option.textContent = crop.replace(/\b\w/g, c => c.toUpperCase());
+      cropSelect.appendChild(option);
+    });
+    cropSelect.value = "{{ request.form.get('crop_choice', '') }}";
+
+    function readValue(id) {
+      const raw = document.getElementById(id).value;
+      return raw === "" ? null : Number(raw);
+    }
+
+    function fmt(n) {
+      return Number.isInteger(n) ? String(n) : n.toFixed(2).replace(/\.?0+$/, "");
+    }
+
+    function addRow(body, name, yours, ideal, diff, statusClass) {
+      const row = document.createElement("tr");
+      const label = document.createElement("th");
+      label.textContent = name;
+      row.appendChild(label);
+      [yours, ideal, diff].forEach(function (text, i) {
+        const cell = document.createElement("td");
+        cell.textContent = text;
+        if (i === 2) cell.className = statusClass;
+        row.appendChild(cell);
+      });
+      body.appendChild(row);
+    }
+
+    function updateCropCheck() {
+      const crop = cropSelect.value;
+      const box = document.getElementById("cropCheck");
+      if (!crop) { box.hidden = true; return; }
+
+      const ideal = CROP_IDEALS[crop];
+      const body = document.getElementById("cropCompareBody");
+      body.innerHTML = "";
+      box.hidden = false;
+      document.getElementById("cropCheckTitle").textContent =
+        "Is your soil right for " + cropSelect.options[cropSelect.selectedIndex].text + "?";
+
+      let missing = 0;
+      let phOk = true;
+      const offNutrients = [];
+
+      // pH is compared against the crop's range
+      const ph = readValue("soil_ph");
+      const phRange = ideal.phLow + " - " + ideal.phHigh;
+      if (ph === null) {
+        missing++;
+        addRow(body, "Soil pH", "—", phRange, "Not entered", "status-missing");
+      } else if (ph < ideal.phLow) {
+        phOk = false;
+        addRow(body, "Soil pH", fmt(ph), phRange, "-" + fmt(ideal.phLow - ph) + " too acidic", "status-off");
+      } else if (ph > ideal.phHigh) {
+        phOk = false;
+        addRow(body, "Soil pH", fmt(ph), phRange, "+" + fmt(ph - ideal.phHigh) + " too alkaline", "status-off");
+      } else {
+        addRow(body, "Soil pH", fmt(ph), phRange, "In range", "status-match");
+      }
+
+      // Nutrients are compared against the crop's ideal value
+      NUTRIENTS.forEach(function (n) {
+        const yours = readValue(n.id);
+        const target = ideal[n.id];
+        if (yours === null) {
+          missing++;
+          addRow(body, n.name, "—", fmt(target), "Not entered", "status-missing");
+          return;
+        }
+        const diff = yours - target;
+        const pct = Math.round((diff / target) * 100);
+        const diffText = (diff >= 0 ? "+" : "") + fmt(diff) + " (" + (pct >= 0 ? "+" : "") + pct + "%)";
+        if (Math.abs(diff) <= target * TOLERANCE) {
+          addRow(body, n.name, fmt(yours), fmt(target), diffText + " close", "status-match");
+        } else if (diff < 0) {
+          offNutrients.push(n.name.replace(/ \(.*\)/, "") + " is low");
+          addRow(body, n.name, fmt(yours), fmt(target), diffText + " low", "status-off");
+        } else {
+          offNutrients.push(n.name.replace(/ \(.*\)/, "") + " is high");
+          addRow(body, n.name, fmt(yours), fmt(target), diffText + " high", "status-off");
+        }
+      });
+
+      const badge = document.getElementById("cropBadge");
+      const verdict = document.getElementById("cropVerdict");
+      if (missing === NUTRIENTS.length + 1) {
+        badge.hidden = true;
+        verdict.textContent = "Enter your soil test values above to see how they compare.";
+        return;
+      }
+      badge.hidden = false;
+      if (!phOk) {
+        badge.className = "badge badge-warn";
+        badge.textContent = "Not a good fit";
+        verdict.textContent = "Your soil pH is outside this crop's range.";
+      } else if (offNutrients.length === 0 && missing === 0) {
+        badge.className = "badge badge-ok";
+        badge.textContent = "Good fit";
+        verdict.textContent = "Your soil matches this crop's ideal conditions.";
+      } else if (offNutrients.length <= 2) {
+        badge.className = "badge badge-mid";
+        badge.textContent = "Possible with adjustments";
+        verdict.textContent = offNutrients.length
+          ? offNutrients.join(", ") + "."
+          : "Fill in the missing values to be sure.";
+      } else {
+        badge.className = "badge badge-warn";
+        badge.textContent = "Not a good fit";
+        verdict.textContent = offNutrients.join(", ") + ".";
+      }
+    }
+
+    cropSelect.addEventListener("change", updateCropCheck);
+    ["soil_ph"].concat(NUTRIENTS.map(n => n.id)).forEach(function (id) {
+      document.getElementById(id).addEventListener("input", updateCropCheck);
+    });
+    updateCropCheck();
+  </script>
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 
