@@ -32,4 +32,4 @@
 - Could suggest cover crops to farmers struggling with top soil loss and sustainable sprinklers for those with waterlogging issues
 
 ## Acknowledgents
-Key Contributors- Holika Nanna, Edith Zhan, Ning Joy, Inika Dwivedi
+- Key Contributors- Holika Nanna, Edith Zhan, Ning Joy, Inika Dwivedi
