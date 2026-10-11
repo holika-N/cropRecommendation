@@ -71,6 +71,7 @@
   </style>
 </head>
 
+
 <body>
     <!-- NAVBAR -->
      <nav class="navbar">
@@ -84,15 +85,18 @@
   </nav>
 
   <section id="home">
+    <video autoplay muted loop playsinline class="home-clouds">
+    <source src="{{ url_for('static', filename='no-result.mp4') }}" type="video/mp4">
+    </video>
     <h1> Home </h1>
     <p> Welcome to our crop rotation recommender! </p>
-    <p> This site was created with the hopes of deciding what crop to plant based on results of a soil test a little bit easier.</p>
+    <p> This site was created with the hopes of deciding what crop </p>
+    <p> to plant based on results of a soil test a little bit easier.</p>
   </section>
 
   <section id="howto">
     <h1> Instructions </h1>
-    <p> To use our recommendation system, simply input the percentages of each nutrient in the result of your test. </p>
-    <p> * Add visual indicators of how to *</p>
+    <p> To use our recommendation system, simply input the values of each nutrient in the result of your test. </p>
     <p> If a nutrient on our list is not on yours, please enter 0 in the input box. </p>
 
   </section>
@@ -320,12 +324,14 @@
           {% endfor %}
         </div>
       </div>
+    {% else %}
     {% endif %}
   </section>
 
   <section id="about">
     <h1> About Us </h1>
   </section>
+
 
   <script>
     // Ideal soil for each crop, copied from crop_recommendation.csv.
@@ -471,6 +477,7 @@
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 
+<script type="module" src="https://unpkg.com/@lottiefiles/dotlottie-wc@latest/dist/dotlottie-wc.js"></script>
 </body>
 
 
