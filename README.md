@@ -9,8 +9,8 @@
 
 ## Features- 
 - Determines top 3 suitable crops based off of nutrient contents such as soil pH, potassium levels, phophorous, magnesium, and carbon
-- allows users to see how suitable selected crops are for their soil quality
-- displays predicted market price for each crop based off of real world data
+- Allows users to see how suitable selected crops are for their soil quality
+- Displays predicted market price for each crop based off of real world data
 
 ### Installation
 1. Clone the repo
