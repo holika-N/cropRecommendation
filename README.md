@@ -1,4 +1,4 @@
-# Code-Ade-Project-repo
+# Code-ADA-Project-repo
 # Croptimal
 
 **A python-based website that recommends what crops are suitable based on user input of soil quality**
