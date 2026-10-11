@@ -49,22 +49,32 @@ html {
   font-weight: 500;
   position: relative;
   transition: color 0.25s ease;
-  font-family: 'Courier', monospace;
+  font-family: 'Roboto', monospace;
 
 }
 
 .navbar a:hover {
-  color: rgb(217, 232, 211);
+  color: rgb(202, 223, 239);
+
 }
 
 body {
     margin: 0;
     padding-top: 60px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--dust-grey);
+    background-attachment: scroll; 
+    background-color: rgb(89, 151, 187);
+    color: rgb(2, 16, 26)
 }
 
+section#gif_of_sky {
+    background-image: url('corn\ sway\ animation.gif');
+    background-repeat: no-repeat;
+    background-size: contain;
+    min-height: 50hv;
+    background-repeat: repeat no-repeat;
 
+}
 
 section {
     text-align: center;
@@ -74,7 +84,28 @@ section {
 }
 
 #home {
+  position: relative;
+  box-sizing: border-box;
+  overflow: hidden;
   font-family: 'Roboto', monospace;
+}
+
+/* clouds stretch across the whole Home section, behind the text */
+.home-clouds {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  filter: invert(1) brightness(8);
+  mix-blend-mode: screen;
+}
+
+/* keep the heading and text above the clouds */
+#home > *:not(.home-clouds) {
+  position: relative;
+  z-index: 1;
 }
 
 #howto {
@@ -95,6 +126,23 @@ section {
   background: var(--dark-spruce);
   color: var(--dust-grey);
   padding: 100px 5% 80px;
+}
+
+.rec-empty {
+  max-width: 640px;
+  margin: 40px auto 0;
+  text-align: center;
+  opacity: 1;
+}
+
+.rec-empty-video {
+  display: block;
+  width: 300px;
+  max-width: 100%;
+  margin: 0 auto 16px;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: var(--rec-shadow);
 }
 
 /* HEADER */
@@ -505,4 +553,6 @@ section {
 }
 #about {
   font-family: 'Roboto', monospace;
+  background: rgb(84, 49, 37);
+  color: rgb(203, 177, 156);
 }
