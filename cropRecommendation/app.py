@@ -4,12 +4,18 @@ source .venv/bin/activate #whenever you open new terminal
 python -m pip install -r requirements.txt
 '''
 
+import sys
+from pathlib import Path
 import pandas as pd
 import numpy as np
 
 from flask import Flask, render_template, request
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics.pairwise import euclidean_distances
+
+# Add project root directory to path to import from PricePrediction folder
+sys.path.append(str(Path(__file__).parent))
+from priceprediction import get_crop_price_forecast
 
 app = Flask(
     __name__,
@@ -92,22 +98,52 @@ def recommend_crops(values, soil_ph, top_n=3):
     # Return each crop only once.
     results = results.drop_duplicates(subset=["label"])
 
-    return [
-        {
-            "crop": row["label"].title(),
+    recommendations = []
+    for _, row in results.head(top_n).iterrows():
+        crop_label = row["label"].strip()
+
+        # Safely fetch economic forecast for the recommended crop
+        try:
+            price_forecast = get_crop_price_forecast(
+                crop_name=crop_label, n_months=4
+            )
+        except Exception:
+            price_forecast = None
+
+        crop_dict = {
+            "crop": crop_label.title(),
             "similarity": round(
                 100 / (1 + float(row["distance"])), 1
             ),
             "ph_range": f'{row["pHL"]} - {row["phU"]}',
             "ph_match": bool(row["ph_match"]),
-            # the crop's levels, shown in the dropdown
-            **{
-                name: round(float(row[name]), 2)
-                for name in features
-            }
+            "price_forecast": price_forecast,
         }
-        for _, row in results.head(top_n).iterrows()
-    ]
+
+        # Include the individual nutrient levels for the dropdown
+        for name in features:
+            crop_dict[name] = round(float(row[name]), 2)
+
+        recommendations.append(crop_dict)
+
+    return recommendations
+
+    # return [
+    #     {
+    #         "crop": row["label"].title(),
+    #         "similarity": round(
+    #             100 / (1 + float(row["distance"])), 1
+    #         ),
+    #         "ph_range": f'{row["pHL"]} - {row["phU"]}',
+    #         "ph_match": bool(row["ph_match"]),
+    #         # the crop's levels, shown in the dropdown
+    #         **{
+    #             name: round(float(row[name]), 2)
+    #             for name in features
+    #         }
+    #     }
+    #     for _, row in results.head(top_n).iterrows()
+    # ]
 
 
 @app.route("/", methods=["GET", "POST"])

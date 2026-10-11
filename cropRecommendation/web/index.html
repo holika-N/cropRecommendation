@@ -42,6 +42,32 @@
     .status-match { color: var(--dark-spruce); font-weight: 700; }
     .status-off { color: var(--reddish-brown); font-weight: 700; }
     .status-missing { color: var(--rec-ink-soft); }
+
+    /* MARKET OUTLOOK STYLES */
+    .price-forecast-box {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--rec-line, #ccc);
+    }
+    .price-forecast-box h4 {
+      margin: 0 0 8px 0;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--steel-blue, #2a6f97);
+    }
+    .monthly-prices-list {
+      list-style: none;
+      padding-left: 0;
+      margin: 6px 0 0 0;
+    }
+    .monthly-prices-list li {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+      font-size: 0.9rem;
+      border-bottom: 1px dotted #e0e0e0;
+    }
   </style>
 </head>
 
@@ -51,26 +77,27 @@
     <ul>
         <li><a href="#home">Home</a></li>
         <li><a href="#howto">Instructions</a></li>
-        <li><a href="#recommendation">Reccomendation</a></li>
+        <li><a href="#recommendation">Recommendation</a></li>
         <li><a href="#about">About Us</a></li>
 
     </ul>
   </nav>
 
-  <section id = "home">
+  <section id="home">
     <h1> Home </h1>
     <p> Welcome to our crop rotation recommender! </p>
     <p> This site was created with the hopes of deciding what crop to plant based on results of a soil test a little bit easier.</p>
   </section>
 
-  <section id = "howto">
+  <section id="howto">
     <h1> Instructions </h1>
     <p> To use our recommendation system, simply input the percentages of each nutrient in the result of your test. </p>
     <p> * Add visual indicators of how to *</p>
-    <p> If a nutrient on our list is not on your, please enter 0 in the input box. </p>
+    <p> If a nutrient on our list is not on yours, please enter 0 in the input box. </p>
 
-</section>
-<!-- In index.html, replace your whole <section id="recommendation"> ... </section> with this. -->
+  </section>
+
+  <!-- RECOMMENDATION SECTION -->
   <section id="recommendation">
     <header class="rec-header">
       <h1>Recommendation</h1>
@@ -142,6 +169,7 @@
             <span class="rec-unit">%</span>
           </div>
         </div>
+
         <div class="rec-field">
           <span class="rec-chip rec-chip--lime" aria-hidden="true">?</span>
           <label for="crop_choice">Crop you want to plant</label>
@@ -219,12 +247,9 @@
                   <span class="badge badge-warn">pH out of range</span>
                 {% endif %}
 
-                <span class="crop-hint">Click to see nutrient levels</span>
+                <span class="crop-hint">Click to see nutrient levels & market outlook</span>
               </summary>
 
-              <!-- Shown when the card is clicked.
-                   "This crop" needs item.K, item.P, item.Mg and item.C from app.py;
-                   until those exist the column shows a dash. -->
               <div class="crop-levels">
                 <table>
                   <thead>
@@ -262,6 +287,34 @@
                     </tr>
                   </tbody>
                 </table>
+
+                <!-- ECONOMIC MARKET FORECAST DISPLAY -->
+                {% if item.price_forecast %}
+                  <div class="price-forecast-box">
+                    <h4>Market Outlook ({{ item.price_forecast.forecast_type }})</h4>
+
+                    {% if item.price_forecast.commodity == 'potato' %}
+                      <!-- Potatoes: Minimum Price Total -->
+                      <p><strong>Minimum Price Total:</strong> ${{ item.price_forecast.forecast_price }} {{ item.price_forecast.unit }}</p>
+
+                    {% elif item.price_forecast.commodity == 'pumpkin' %}
+                      <!-- Pumpkins: Target Harvest Forecast -->
+                      <p><strong>Projected Price:</strong> ${{ item.price_forecast.forecast_price }} {{ item.price_forecast.unit }}</p>
+
+                    {% else %}
+                      <!-- Corn, Soybeans, Wheat: 4-Month Trajectory -->
+                      <ul class="monthly-prices-list">
+                        {% for m in item.price_forecast.monthly_breakdown %}
+                          <li>
+                            <span>{{ m.month }}</span>
+                            <strong>${{ m.price }} {{ m.unit }}</strong>
+                          </li>
+                        {% endfor %}
+                      </ul>
+                    {% endif %}
+                  </div>
+                {% endif %}
+
               </div>
             </details>
           {% endfor %}
@@ -270,9 +323,12 @@
     {% endif %}
   </section>
 
+  <section id="about">
+    <h1> About Us </h1>
+  </section>
+
   <script>
     // Ideal soil for each crop, copied from crop_recommendation.csv.
-    // Keep this list in sync if the CSV changes.
     const CROP_IDEALS = {
       "pumpkin":      { phLow: 6.0, phHigh: 6.8, K: 137.5, P: 33, Mg: 180, C: 10 },
       "corn":         { phLow: 6.0, phHigh: 6.5, K: 2280,  P: 28, Mg: 274, C: 3.45 },
@@ -288,9 +344,7 @@
       { id: "C",  name: "Carbon (%)" }
     ];
 
-    // A nutrient within this fraction of the ideal value counts as a match.
     const TOLERANCE = 0.2;
-
     const cropSelect = document.getElementById("crop_choice");
 
     Object.keys(CROP_IDEALS).forEach(function (crop) {
@@ -340,7 +394,6 @@
       let phOk = true;
       const offNutrients = [];
 
-      // pH is compared against the crop's range
       const ph = readValue("soil_ph");
       const phRange = ideal.phLow + " - " + ideal.phHigh;
       if (ph === null) {
@@ -356,7 +409,6 @@
         addRow(body, "Soil pH", fmt(ph), phRange, "In range", "status-match");
       }
 
-      // Nutrients are compared against the crop's ideal value
       NUTRIENTS.forEach(function (n) {
         const yours = readValue(n.id);
         const target = ideal[n.id];
@@ -414,6 +466,8 @@
     });
     updateCropCheck();
   </script>
+
+  <section id="about"> About us </section>
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 
