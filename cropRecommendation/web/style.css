@@ -45,7 +45,7 @@ html {
 
 .navbar a {
   text-decoration: none;
-  color: #032a10;
+  color: #011106;
   font-weight: 500;
   position: relative;
   transition: color 0.25s ease;
@@ -54,7 +54,7 @@ html {
 }
 
 .navbar a:hover {
-  color: rgb(202, 223, 239);
+  color: #bfdcc9;
 
 }
 
@@ -67,7 +67,7 @@ body {
     color: rgb(2, 16, 26)
 }
 
-section#gif_of_sky {
+section#gif_of_corn {
     background-image: url('corn\ sway\ animation.gif');
     background-repeat: no-repeat;
     background-size: contain;
@@ -79,7 +79,7 @@ section#gif_of_sky {
 section {
     text-align: center;
     min-height: 100hv;
-    padding: 100px 40px 40px;
+    padding: 70px 40px 40px;
     scroll-margin-top: 30px;
 }
 
@@ -90,23 +90,15 @@ section {
   font-family: 'Roboto', monospace;
 }
 
-/* clouds stretch across the whole Home section, behind the text */
-.home-clouds {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  pointer-events: none;
-  filter: invert(1) brightness(8);
-  mix-blend-mode: screen;
+section#gif_of_clouds{
+  background-image: url('cloud\ rolling.gif');
+  background-repeat: no-repeat;
+  background-size: contain;
+  min-height: 50hv;
+  background-repeat: repeat no-repeat;
 }
 
-/* keep the heading and text above the clouds */
-#home > *:not(.home-clouds) {
-  position: relative;
-  z-index: 1;
-}
+
 
 #howto {
   font-family: 'Roboto', monospace;
